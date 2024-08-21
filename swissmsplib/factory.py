@@ -1,5 +1,5 @@
-from salt import SaltClient
-from swisscom import SwisscomClient
+from swissmsplib.salt import SaltClient
+from swissmsplib.swisscom import SwisscomClient
 
 
 def create_client(provider):

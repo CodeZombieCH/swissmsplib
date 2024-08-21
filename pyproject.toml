@@ -1,0 +1,14 @@
+[project]
+name = "swissmsplib"
+version = "0.0.1"
+readme = "README.md"
+requires-python = ">= 3.8"
+dependencies = [
+    "beautifulsoup4",
+    "requests",
+    "python-dateutil"
+]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"

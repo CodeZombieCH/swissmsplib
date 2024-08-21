@@ -5,12 +5,12 @@ import time
 import json
 import dateutil.relativedelta
 
-import useragent
+from swissmsplib.useragent import get_default_user_agent 
 
 
 class SaltClient:
     def __init__(
-        self, service_url, service_name, get_user_agent=useragent.get_default_user_agent
+        self, service_url, service_name, get_user_agent=get_default_user_agent
     ):
         if not service_url:
             raise ValueError("service_url cannot be empty")

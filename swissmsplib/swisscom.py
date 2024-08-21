@@ -1,11 +1,11 @@
 from bs4 import BeautifulSoup
 import requests
 
-import useragent
+from swissmsplib.useragent import get_default_user_agent 
 
 
 class SwisscomClient:
-    def __init__(self, service_url, get_user_agent=useragent.get_default_user_agent):
+    def __init__(self, service_url, get_user_agent=get_default_user_agent):
         if not service_url:
             raise ValueError("service_url cannot be empty")
         self.service_url = service_url

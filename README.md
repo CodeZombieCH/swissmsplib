@@ -1,6 +1,6 @@
 # Swiss Mobile Service Provider Library
 
-The **Swiss** **M**obile **S**ervice **P**rovider **Lib**rary (swissmsplib).
+The **Swiss** **M**obile **S**ervice **P**rovider **Lib**rary (swissmsplib) is a client library that allows interacting with Swiss mobile service providers as if they would expose a public API.
 
 
 ## Development

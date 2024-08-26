@@ -1,5 +1,10 @@
 {
     "cSpell.words": [
+        "swissmsplib",
         "useragent"
-    ]
+    ],
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.formatOnSave": true
+    }
 }

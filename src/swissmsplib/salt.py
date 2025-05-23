@@ -5,7 +5,7 @@ import time
 import json
 import dateutil.relativedelta
 
-from swissmsplib.useragent import get_default_user_agent 
+from swissmsplib.common import ParserException, get_default_user_agent
 
 
 class SaltClient:
@@ -158,10 +158,6 @@ class Counters:
         self.volumeUsed = volumeUsed
         self.validUntil = validUntil
         self.period_percent_used = period_percent_used
-
-
-class ParserException(Exception):
-    pass
 
 
 def time_ms():

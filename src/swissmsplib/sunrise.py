@@ -190,7 +190,7 @@ class SunriseClient:
         return Account(int(response_body["accountId"]))
 
     def get_bootloader(self):
-        # https://ms.lebara.ch/rest/service/bootloader?rfe_id=SMJ7VVZqCB_kfpj46cptr
+        # https://ms.lebara.ch/rest/service/bootloader?rfe_id=<unused-id>
         url = self.service_url + "/rest/service/bootloader"
         headers = {
             "Accept-Language": "en-US,en;q=0.5",
@@ -295,7 +295,7 @@ class LegacySunriseClient:
     def get_account_details(self):
         self.client.check_access_token()
 
-        # https://rest.lebara.ch/rest/service/getAccountDetails?rfe_id=SMJ7VVZqCB_sxqanuqlzj
+        # https://rest.lebara.ch/rest/service/getAccountDetails?rfe_id=<unused-id>
         url = self.service_url + "/rest/service/getAccountDetails"
         headers = {
             "Accept-Language": "en-US,en;q=0.5",
@@ -319,7 +319,7 @@ class LegacySunriseClient:
     def get_balance(self, subscription_id: str):
         self.client.check_access_token()
 
-        # https://rest.lebara.ch/rest/service/getSubscriptionDetails?rfe_id=SMJ7VVZqCB_z8gfrcnln2
+        # https://rest.lebara.ch/rest/service/getSubscriptionDetails?rfe_id=<unused-id>
         url = self.service_url + "/rest/service/getSubscriptionDetails"
         headers = {
             "Accept-Language": "en-US,en;q=0.5",

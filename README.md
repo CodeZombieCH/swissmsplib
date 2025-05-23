@@ -7,28 +7,15 @@ The **Swiss** **M**obile **S**ervice **P**rovider **Lib**rary (swissmsplib) is a
 
 ### Versions
 
-Build and tested using
-- Ubuntu Ubuntu 20.04.4 LTS
-- Python 3.8.10
+Build and tested using dev container (see [devcontainer.json](.devcontainer/devcontainer.json))
+- Debian 12
+- Python 3.11
+- Poetry 2.1
 
+### Poetry
 
-### Python Virtual Environment (venv)
+This project uses poetry for package and venv management.
 
-#### Initial setup
+### Black
 
-    python3 -m venv .venv
-    source .venv/bin/activate
-    pip install --upgrade pip
-
-#### Usage
-
-    source .venv/bin/activate
-
-#### Restore dependencies
-
-    pip install -r requirements.txt
-
-#### Install dependency
-
-    pip install requests
-    pip freeze > requirements.txt
+This project uses black for source code formatting.

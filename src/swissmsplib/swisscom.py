@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 import requests
 
-from swissmsplib.useragent import get_default_user_agent 
+from swissmsplib.common import ParserException, get_default_user_agent
 
 
 class SwisscomClient:
@@ -60,9 +60,27 @@ class SwisscomClient:
             phone_number_element = product_element.select_one(
                 ".product__item__phone-number"
             )
+            if not phone_number_element:
+                raise ParserException("Failed to parse element for phone number")
+
             subscriptions.append(Subscription(phone_number_element.text.strip()))
 
         return subscriptions
+
+    def get_prepaid_balance(self):
+        url = f"{self.service_url}/eCare/prepaid/de/my_consumption"
+        response = self.session.get(url)
+        response.raise_for_status()
+
+        page = BeautifulSoup(response.text, "html.parser")
+        balance_element = page.select_one(
+            "#credit_balance .panel__consumption__data--value"
+        )
+
+        if not balance_element:
+            raise ParserException("Failed to parse element for balance")
+
+        return float(balance_element.text)
 
 
 class Subscription:

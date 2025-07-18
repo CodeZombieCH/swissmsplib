@@ -214,9 +214,6 @@ class SunriseClient:
         self.access_token = access_token
         self.session.headers.update({"Authorization": "Bearer " + access_token})
 
-        with open(f"{self.service_name}.access-token.txt", "w") as f:
-            f.write(access_token)
-
     def __refresh_access_token(self):
         """
         Refreshes the access token using the refresh token stored in the cookies

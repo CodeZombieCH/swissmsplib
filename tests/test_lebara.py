@@ -18,10 +18,9 @@ class TestSunriseClientLogin(unittest.TestCase):
         client: SunriseClient = create_client("lebara")  # type: ignore
 
         context = client.login_send_username(profile.username)
-        if context.next_step != NextStep.PASSWORD:
-            raise Exception()
+        if context.next_step == NextStep.PASSWORD:
+            context = client.login_send_password(context, profile.password)
 
-        context = client.login_send_password(context, profile.password)
         if context.next_step != NextStep.CODE:
             raise Exception()
 

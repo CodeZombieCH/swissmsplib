@@ -3,10 +3,11 @@ import os
 
 from swissmsplib.factory import create_client
 from swissmsplib.profiles import read_profile
+from swissmsplib.salt import SaltClient
 from swissmsplib.swisscom import SwisscomClient
 
 
-class TestMBudgetClient(unittest.TestCase):
+class TestGoMoClient(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.__client = cls.__get_client()
@@ -16,11 +17,11 @@ class TestMBudgetClient(unittest.TestCase):
         cls.__client.logout()
 
     @staticmethod
-    def __get_client() -> SwisscomClient:
+    def __get_client() -> SaltClient:
         os.environ["PROFILE_FILE"] = "./.data/profiles.toml"
-        profile = read_profile("mbudget")
+        profile = read_profile("salt")
 
-        client: SwisscomClient = create_client("mbudget")  # type: ignore
+        client: SaltClient = create_client("salt")  # type: ignore
         client.login(profile.username, profile.password)
         return client
 
@@ -29,9 +30,3 @@ class TestMBudgetClient(unittest.TestCase):
 
         subscriptions = client.get_subscriptions()
         self.assertGreater(len(subscriptions), 0)
-
-    def test_get_prepaid_balance(self):
-        client = self.__client
-
-        balance = client.get_prepaid_balance()
-        self.assertGreaterEqual(balance, 0)

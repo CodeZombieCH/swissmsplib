@@ -10,8 +10,16 @@ from swissmsplib.common import ParserException, get_default_user_agent
 
 class SaltClient:
     def __init__(
-        self, service_url, service_name, get_user_agent=get_default_user_agent
+        self,
+        login_url: str,
+        service_url: str,
+        service_name: str,
+        get_user_agent=get_default_user_agent,
     ):
+        if not login_url:
+            raise ValueError("login_url cannot be empty")
+        self.login_url = login_url
+
         if not service_url:
             raise ValueError("service_url cannot be empty")
         self.service_url = service_url
@@ -30,7 +38,7 @@ class SaltClient:
         if not password:
             raise ValueError("password cannot be empty")
 
-        url = f"https://login.salt.ch/cas-external/login?service={self.service_url}/&lang=de"
+        url = f"{self.login_url}/cas-external/login?service={self.service_url}/&lang=de"
 
         response = self.session.get(url)
         response.raise_for_status()
@@ -52,7 +60,7 @@ class SaltClient:
 
     def logout(self):
         response = self.session.get(
-            f"https://login.salt.ch/cas-external/logout?service={self.service_url}/?v={time_ms()}&lang=en"
+            f"{self.login_url}/cas-external/logout?service={self.service_url}/?v={time_ms()}&lang=en"
         )
         response.raise_for_status()
 

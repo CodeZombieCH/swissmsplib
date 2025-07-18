@@ -17,6 +17,7 @@ class LoginContext:
     ) -> None:
         self.username = username
         self.next_step = next_step
+        self.secret = secret
 
     def set_next_step(self, next_step: NextStep):
         self.next_step = next_step
@@ -67,6 +68,9 @@ class SunriseClient:
         if not username:
             raise ValueError("username cannot be empty")
 
+        if "@" not in username:
+            raise ValueError("username is expected to represent an email address")
+
         # Initial request to get cookies
         # Expected to return a 401 and a cookie
         url = self.service_url + "/identity/selfcare/refresh-token"
@@ -78,7 +82,7 @@ class SunriseClient:
             "Accept": "application/json, text/plain, */*",
         }
         request_payload = {
-            "method": "phone",
+            "method": "email",
             "brand": self.service_name,
             "value": username,
             "language": "en",
@@ -105,10 +109,10 @@ class SunriseClient:
             "Accept": "application/json, text/plain, */*",
         }
         request_payload = {
-            "method": "phone",
+            "method": "email",
             "brand": self.service_name,
             "language": "en",
-            "value": context.username,  # phone number
+            "value": context.username,
             "password": password,
         }
         response = self.session.post(url, headers=headers, json=request_payload)
@@ -235,6 +239,9 @@ class SunriseClient:
         access_token = response_payload["accessToken"]
 
         self.__set_access_token(access_token)
+
+    def get_refresh_token(self):
+        return self.session.cookies.get("selfcare")
 
     def check_access_token(self):
         if not self.access_token:

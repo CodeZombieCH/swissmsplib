@@ -10,18 +10,17 @@ from swissmsplib.sunrise import NextStep, SunriseClient, LegacySunriseClient
 class TestSunriseClientLogin(unittest.TestCase):
     def test_login(self):
         os.environ["PROFILE_FILE"] = "./.data/profiles.toml"
-        profile = read_profile("lebara")
+        profile = read_profile("yallo")
 
         if not profile.refresh_token:
             raise ValueError("Missing refresh token in profile")
 
-        client: SunriseClient = create_client("lebara")  # type: ignore
+        client: SunriseClient = create_client("yallo")  # type: ignore
 
         context = client.login_send_username(profile.username)
-        if context.next_step != NextStep.PASSWORD:
-            raise Exception()
+        if context.next_step == NextStep.PASSWORD:
+            context = client.login_send_password(context, profile.password)
 
-        context = client.login_send_password(context, profile.password)
         if context.next_step != NextStep.CODE:
             raise Exception()
 
@@ -44,12 +43,12 @@ class TestSunriseClient(unittest.TestCase):
     @staticmethod
     def __get_client() -> SunriseClient:
         os.environ["PROFILE_FILE"] = "./.data/profiles.toml"
-        profile = read_profile("lebara")
+        profile = read_profile("yallo")
 
         if not profile.refresh_token:
             raise ValueError("Missing refresh token in profile")
 
-        client: SunriseClient = create_client("lebara")  # type: ignore
+        client: SunriseClient = create_client("yallo")  # type: ignore
         client.login_with_refresh_token(profile.refresh_token)
         return client
 
@@ -66,11 +65,6 @@ class TestSunriseClient(unittest.TestCase):
 
         self.assertGreater(subscriptions[0].id, 0)
 
-    def test_get_bootloader(self):
-        client = self.__client
-
-        foo = client.get_bootloader()
-
 
 class TestLegacySunriseClient(unittest.TestCase):
     @classmethod
@@ -84,12 +78,12 @@ class TestLegacySunriseClient(unittest.TestCase):
     @staticmethod
     def __get_client() -> LegacySunriseClient:
         os.environ["PROFILE_FILE"] = "./.data/profiles.toml"
-        profile = read_profile("lebara")
+        profile = read_profile("yallo")
 
         if not profile.refresh_token:
             raise ValueError("Missing refresh token in profile")
 
-        client: SunriseClient = create_client("lebara")  # type: ignore
+        client: SunriseClient = create_client("yallo")  # type: ignore
         client.login_with_refresh_token(profile.refresh_token)
 
         return LegacySunriseClient(client)

@@ -7,7 +7,7 @@ from swissmsplib.salt import SaltClient
 from swissmsplib.swisscom import SwisscomClient
 
 
-class TestGoMoClient(unittest.TestCase):
+class TestSaltClient(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.__client = cls.__get_client()

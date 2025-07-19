@@ -7,7 +7,7 @@ from swissmsplib.profiles import read_profile
 from swissmsplib.sunrise import NextStep, SunriseClient, LegacySunriseClient
 
 
-class TestSunriseClientLogin(unittest.TestCase):
+class TestYalloClientLogin(unittest.TestCase):
     def test_login(self):
         os.environ["PROFILE_FILE"] = "./.data/profiles.toml"
         profile = read_profile("yallo")
@@ -31,7 +31,7 @@ class TestSunriseClientLogin(unittest.TestCase):
         self.assertIsNotNone(refresh_token)
 
 
-class TestSunriseClient(unittest.TestCase):
+class TestYalloClient(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.__client = cls.__get_client()
@@ -41,7 +41,7 @@ class TestSunriseClient(unittest.TestCase):
         pass
 
     @staticmethod
-    def __get_client() -> SunriseClient:
+    def __get_client():
         os.environ["PROFILE_FILE"] = "./.data/profiles.toml"
         profile = read_profile("yallo")
 
@@ -66,7 +66,7 @@ class TestSunriseClient(unittest.TestCase):
         self.assertGreater(subscriptions[0].id, 0)
 
 
-class TestLegacySunriseClient(unittest.TestCase):
+class TestLegacyYalloClient(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.__client = cls.__get_client()
@@ -76,7 +76,7 @@ class TestLegacySunriseClient(unittest.TestCase):
         pass
 
     @staticmethod
-    def __get_client() -> LegacySunriseClient:
+    def __get_client():
         os.environ["PROFILE_FILE"] = "./.data/profiles.toml"
         profile = read_profile("yallo")
 

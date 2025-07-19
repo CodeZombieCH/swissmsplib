@@ -4,7 +4,6 @@ import os
 from swissmsplib.factory import create_client
 from swissmsplib.profiles import read_profile
 from swissmsplib.salt import SaltClient
-from swissmsplib.swisscom import SwisscomClient
 
 
 class TestSaltClient(unittest.TestCase):

@@ -1,6 +1,9 @@
-from enum import Enum
+import base64
+import random
+import string
 import requests
 import jwt
+from enum import Enum
 from datetime import datetime, timezone, timedelta
 
 from swissmsplib.common import get_default_user_agent
@@ -48,6 +51,14 @@ class Account:
 
 
 class SunriseClient:
+    """
+    A client for the sunrise REST API.
+    Sunrise calls it the microServiceEndpoint
+    ```
+    microServiceEndpoint = 'https://prod.ms.api.' + brand + '.ch/'
+    ```
+    """
+
     access_token: str | None = None
 
     def __init__(
@@ -287,13 +298,39 @@ class LegacyAccount:
         self.subscriptions = subscriptions
 
 
-class LegacySunriseClient:
+class LegacyBill:
     def __init__(
         self,
-        client: SunriseClient,
-        service_url="https://rest.lebara.ch",
+        id: str,
+        invoice_number: str,
+        start_date: datetime,
+        end_date: datetime,
+        status: str,
+        amount: float,
     ) -> None:
+
+        self.id = id
+        self.invoice_number = invoice_number
+        self.start_date = start_date
+        self.end_date = end_date
+        self.status = status
+        self.amount = amount
+
+
+class LegacySunriseClient:
+    """
+    A client for the legacy sunrise REST API.
+    Sunrise calls it the yolBackendEndpoint
+    ```
+    yolBackendEndpoint = 'https://rest.' + brand + '.ch/rest/service/'
+    ```
+    """
+
+    def __init__(self, client: SunriseClient, service_url: str) -> None:
+        if not service_url:
+            raise ValueError("service_url cannot be empty")
         self.service_url = service_url
+
         self.client = client
 
     def get_account_details(self):
@@ -341,6 +378,155 @@ class LegacySunriseClient:
         balance = float(response_body["data"]["balance"])
         return balance
 
+    def get_rate_plan_status(self, subscription_id: str):
+        self.client.check_access_token()
+
+        # https://rest.lebara.ch/rest/service/getRatePlanStatus?rfe_id=
+        url = self.service_url + "/rest/service/getRatePlanStatus"
+        headers = {
+            "Accept-Language": "en-US,en;q=0.5",
+            "Accept": "application/json, text/plain, */*",
+        }
+        self.__set_legacy_headers(headers)
+        request_payload = {"subscriptionId": subscription_id}
+
+        response = self.client.session.post(url, headers=headers, json=request_payload)
+        response.raise_for_status()
+
+        self.__get_legacy_headers(response.headers)  # type: ignore
+
+        response_payload = response.json()
+
+        # TODO: do something with the response
+        return response_payload
+
+    def get_current_country(self, subscription_id: str):
+        self.client.check_access_token()
+
+        # https://rest.yallo.ch/rest/service/getCurrentCountry?rfe_id=
+        url = self.service_url + "/rest/service/getCurrentCountry"
+        headers = {
+            "Accept-Language": "en-US,en;q=0.5",
+            "Accept": "application/json, text/plain, */*",
+        }
+        self.__set_legacy_headers(headers)
+        request_payload = {"subscriptionId": subscription_id}
+
+        response = self.client.session.post(url, headers=headers, json=request_payload)
+        response.raise_for_status()
+
+        self.__get_legacy_headers(response.headers)  # type: ignore
+
+        response_payload = response.json()
+
+        # TODO: do something with the response
+        return response_payload
+
+    def get_orders(self):
+        self.client.check_access_token()
+
+        # https://rest.yallo.ch/rest/service/getOrders?rfe_id=
+        url = self.service_url + "/rest/service/getOrders"
+        headers = {
+            "Accept-Language": "en-US,en;q=0.5",
+            "Accept": "application/json, text/plain, */*",
+        }
+        self.__set_legacy_headers(headers)
+
+        response = self.client.session.post(url, headers=headers)
+        response.raise_for_status()
+
+        self.__get_legacy_headers(response.headers)  # type: ignore
+
+        response_payload = response.json()
+        # TODO: do something with the response
+        return response_payload
+
+    def get_bills(self):
+        self.client.check_access_token()
+
+        # ****************************************
+        # WARNING
+        # ****************************************
+        # This is a special request!
+        # It requires an empty JSON object `{}` as request payload,
+        # otherwise it will fail
+
+        # https://rest.yallo.ch/rest/service/getBills?rfe_id=
+        url = self.service_url + "/rest/service/getBills"
+        headers = {
+            "Accept-Language": "en-US,en;q=0.5",
+            "Accept": "application/json, text/plain, */*",
+            "Content-Type": "application/json",
+        }
+        self.__set_legacy_headers(headers)
+
+        response = self.client.session.post(url, headers=headers, data="{}")
+        response.raise_for_status()
+
+        self.__get_legacy_headers(response.headers)  # type: ignore
+
+        response_payload = response.json()
+
+        bills_response = response_payload["data"]["bills"]
+        bills: list[LegacyBill] = []
+        for bill_response in bills_response:
+            # For some reasons, open invoices appear twice,
+            # where one of the invoices has an empty invoice number
+
+            # Looks like an int, but API represents it as string
+            id = bill_response["id"]
+
+            # Looks like an int, but API represents it as string
+            invoice_number = bill_response["invoiceNumber"]
+
+            if not bill_response["startDate"]:
+                continue
+            start_date = datetime.fromisoformat(bill_response["startDate"])
+
+            if not bill_response["endDate"]:
+                continue
+            end_date = datetime.fromisoformat(bill_response["endDate"])
+
+            status = bill_response["status"]
+            amount = float(bill_response["amount"])
+
+            bills.append(
+                LegacyBill(
+                    id=id,
+                    invoice_number=invoice_number,
+                    start_date=start_date,
+                    end_date=end_date,
+                    status=status,
+                    amount=amount,
+                )
+            )
+        bills.sort(key=lambda x: x.start_date)
+        return bills
+
+    def download_invoice_pdf(self, invoice_number: str):
+        self.client.check_access_token()
+
+        # https://rest.yallo.ch/rest/service/getInvoicePdf?rfe_id=
+        url = self.service_url + "/rest/service/getInvoicePdf"
+        headers = {
+            "Accept-Language": "en-US,en;q=0.5",
+            "Accept": "application/json, text/plain, */*",
+        }
+        self.__set_legacy_headers(headers)
+        request_payload = {"invoiceNumber": invoice_number}
+
+        response = self.client.session.post(url, headers=headers, json=request_payload)
+        response.raise_for_status()
+
+        self.__get_legacy_headers(response.headers)  # type: ignore
+
+        # Why send binary payload, when you can warp it in a JSON and bse64 encode it 😕
+        response_payload = response.json()
+
+        base64_pdf_payload = response_payload["data"]["pdfData"]
+        return base64.b64decode(base64_pdf_payload)
+
     def __get_legacy_headers(self, headers: dict[str, str]):
         rfe_authorization = headers[LegacySunriseClientHeaders.RFE_AUTHORIZATION]
         if rfe_authorization:
@@ -355,3 +541,27 @@ class LegacySunriseClient:
             headers[LegacySunriseClientHeaders.RFE_AUTHORIZATION] = (
                 self.rfe_authorization
             )
+
+    def __get_random_id(self, n):
+        return "".join(
+            random.choice(
+                string.ascii_lowercase + string.ascii_uppercase + string.digits
+            )
+            for _ in range(n)
+        )
+
+    def __get_random_rfe_id(self):
+        # P = window.yolSessionId + "_" + randomString(10).toLowerCase(),
+        return self.__get_random_id(10) + "_" + self.__get_random_id(10).lower()
+
+
+def create_legacy_sunrise_client(
+    client: SunriseClient, provider
+) -> LegacySunriseClient:
+
+    if provider == "yallo":
+        return LegacySunriseClient(client, "https://rest.yallo.ch")
+    elif provider == "lebara":
+        return LegacySunriseClient(client, "https://rest.lebara.ch")
+    else:
+        raise Exception(f"provider {provider} is not supported")

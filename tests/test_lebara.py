@@ -4,7 +4,11 @@ import logging
 
 from swissmsplib.factory import create_client
 from swissmsplib.profiles import read_profile
-from swissmsplib.sunrise import NextStep, SunriseClient, LegacySunriseClient
+from swissmsplib.sunrise import (
+    NextStep,
+    SunriseClient,
+    create_legacy_sunrise_client,
+)
 
 
 class TestLebaraClientLogin(unittest.TestCase):
@@ -91,7 +95,7 @@ class TestLegacyLebaraClient(unittest.TestCase):
         client: SunriseClient = create_client("lebara")  # type: ignore
         client.login_with_refresh_token(profile.refresh_token)
 
-        return LegacySunriseClient(client)
+        return create_legacy_sunrise_client(client, "lebara")
 
     def test_get_account_details(self):
         client = self.__client

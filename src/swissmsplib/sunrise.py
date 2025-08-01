@@ -5,6 +5,7 @@ import requests
 import jwt
 from enum import Enum
 from datetime import datetime, timezone, timedelta
+from dataclasses import dataclass
 
 from swissmsplib.common import get_default_user_agent
 
@@ -29,20 +30,13 @@ class LoginContext:
         self.secret = secret
 
 
+@dataclass
 class Subscriptions:
-    def __init__(
-        self,
-        id: int,
-        identifier,
-        subscription_owner_id,
-        product_code,
-        subscription_status,
-    ) -> None:
-        self.id = id
-        self.identifier = identifier
-        self.subscription_owner_id = subscription_owner_id
-        self.product_code = product_code
-        self.subscriptionStatus = subscription_status
+    id: int
+    identifier: str
+    subscription_owner_id: str
+    product_code: str
+    subscription_status: str
 
 
 class Account:
@@ -287,34 +281,25 @@ class LegacySunriseClientHeaders:
     RFE_AUTHORIZATION = "RFEAuthorization"
 
 
+@dataclass
 class LegacySubscription:
-    def __init__(self, id: str) -> None:
-        self.id = id
+    id: str
 
 
+@dataclass
 class LegacyAccount:
-    def __init__(self, id: str, subscriptions: list[LegacySubscription]) -> None:
-        self.id = id
-        self.subscriptions = subscriptions
+    id: str
+    subscriptions: list[LegacySubscription]
 
 
+@dataclass
 class LegacyBill:
-    def __init__(
-        self,
-        id: str,
-        invoice_number: str,
-        start_date: datetime,
-        end_date: datetime,
-        status: str,
-        amount: float,
-    ) -> None:
-
-        self.id = id
-        self.invoice_number = invoice_number
-        self.start_date = start_date
-        self.end_date = end_date
-        self.status = status
-        self.amount = amount
+    id: str
+    invoice_number: str
+    start_date: datetime
+    end_date: datetime
+    status: str
+    amount: float
 
 
 class LegacySunriseClient:
@@ -357,7 +342,7 @@ class LegacySunriseClient:
 
         return LegacyAccount(response_payload["data"]["accountId"], subscriptions)
 
-    def get_balance(self, subscription_id: str):
+    def get_balance(self, subscription_id: str) -> float | None:
         self.client.check_access_token()
 
         # https://rest.lebara.ch/rest/service/getSubscriptionDetails?rfe_id=<unused-id>
@@ -375,8 +360,12 @@ class LegacySunriseClient:
         self.__get_legacy_headers(response.headers)  # type: ignore
 
         response_body = response.json()
-        balance = float(response_body["data"]["balance"])
-        return balance
+        if response_body["data"]["balance"]:
+            # Balance present, most likely a pre-paid subscription
+            return float(response_body["data"]["balance"])
+        else:
+            # Balance missing, most likely a post-paid subscription
+            return None
 
     def get_rate_plan_status(self, subscription_id: str):
         self.client.check_access_token()

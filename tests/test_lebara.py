@@ -109,7 +109,8 @@ class TestLegacyLebaraClient(unittest.TestCase):
         account = client.get_account_details()
 
         balance = client.get_balance(account.subscriptions[0].id)
-        self.assertGreaterEqual(balance, 0)
+        self.assertIsNotNone(balance)
+        self.assertGreaterEqual(balance, 0)  # type: ignore
 
 
 if __name__ == "__main__":

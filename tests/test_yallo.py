@@ -104,7 +104,7 @@ class TestLegacyYalloClient(unittest.TestCase):
         account = client.get_account_details()
 
         balance = client.get_balance(account.subscriptions[0].id)
-        self.assertGreaterEqual(balance, 0)
+        self.assertIsNone(balance)
 
     def test_get_rate_plan_status(self):
         client = self.__client

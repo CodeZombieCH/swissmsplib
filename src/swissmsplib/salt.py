@@ -4,8 +4,13 @@ import requests
 import time
 import json
 import dateutil.relativedelta
+from dataclasses import dataclass
 
 from swissmsplib.common import ParserException, get_default_user_agent
+
+
+def time_ms():
+    return time.time_ns() // 1_000_000
 
 
 class SaltClient:
@@ -81,16 +86,13 @@ class SaltClient:
 
         data = response.json()
 
-        subscriptions = []
+        subscriptions: list[Subscription] = []
         for s in data:
-            id = int(s["id"])
-            number = s["number"]
-
-            subscriptions.append(Subscription(id, number))
+            subscriptions.append(Subscription.from_dict(s))
 
         return subscriptions
 
-    def get_subscription(self, id):
+    def get_subscription(self, id: int):
         response = self.session.get(
             f"{self.service_url}/{self.service_name}/protected/v1/subscription/mobile/{id}/costcontrol/EN?_={time_ms()}"
         )
@@ -143,11 +145,47 @@ class SaltClient:
 
         return parsed_counters
 
+    def get_bills(self, billing_account_id: int):
+        # https://my.go-mo.ch/myaccount-gomo-ui-service/protected/v1/billing/<subscription_id>/accountSummary?_=<timestamp>
+        response = self.session.get(
+            f"{self.service_url}/{self.service_name}/protected/v1/billing/{billing_account_id}/accountSummary?_={time_ms()}"
+        )
+        response.raise_for_status()
 
+        data = response.json()
+
+        invoices: list[Invoice] = []
+        for event in data:
+            if event["eventType"] != "INVOICE":
+                continue
+
+            invoices.append(Invoice.from_dict(event))
+
+        return invoices
+
+    def download_bill_pdf(self, billing_account_id: int, invoice_id: int):
+        # https://my.go-mo.ch/myaccount-gomo-ui-service/protected/v1/billing/<billing_account_id>/invoice/<invoice_id>?_=<timestamp>
+        response = self.session.get(
+            f"{self.service_url}/{self.service_name}/protected/v1/billing/{billing_account_id}/invoice/{invoice_id}?_={time_ms()}"
+        )
+        response.raise_for_status()
+
+        return response.content
+
+
+@dataclass
 class Subscription:
-    def __init__(self, id, number):
-        self.id = id
-        self.number = number
+    id: int
+    number: str
+    billing_account_id: int
+
+    @staticmethod
+    def from_dict(obj) -> "Subscription":
+        _id = int(obj.get("id"))
+        _number = obj.get("number")
+        _billing_account_id = int(obj.get("billingAccountId"))
+
+        return Subscription(_id, _number, _billing_account_id)
 
 
 class Counters:
@@ -168,5 +206,57 @@ class Counters:
         self.period_percent_used = period_percent_used
 
 
-def time_ms():
-    return time.time_ns() // 1_000_000
+@dataclass
+class BillingPeriod:
+    startDate: datetime.date
+    endDate: datetime.date
+
+    @staticmethod
+    def from_dict(obj) -> "BillingPeriod":
+        _start_date = datetime.datetime.strptime(obj.get("startDate"), "%d.%m.%Y")
+        _end_date = datetime.datetime.strptime(obj.get("endDate"), "%d.%m.%Y")
+
+        return BillingPeriod(_start_date, _end_date)
+
+
+@dataclass
+class Invoice:
+    invoice_id: int
+    due_date: str
+    billing_period: BillingPeriod | None
+    total_amount: int
+    date: str
+    amount: int
+    entry_type: str
+    event_type: str
+    invoice_type: str
+    has_archive: bool
+
+    @staticmethod
+    def from_dict(obj) -> "Invoice":
+        _invoice_id = int(obj.get("invoiceId"))
+        _due_date = str(obj.get("dueDate"))
+        _total_amount = int(obj.get("totalAmount"))
+        _date = str(obj.get("date"))
+        _amount = int(obj.get("amount"))
+        _entry_type = str(obj.get("entryType"))
+        _event_type = str(obj.get("eventType"))
+        _invoice_type = str(obj.get("invoiceType"))
+        _has_archive = bool(obj.get("hasArchive"))
+
+        _billingPeriod = None
+        if obj.get("billingPeriod"):
+            _billingPeriod = BillingPeriod.from_dict(obj.get("billingPeriod"))
+
+        return Invoice(
+            _invoice_id,
+            _due_date,
+            _billingPeriod,
+            _total_amount,
+            _date,
+            _amount,
+            _entry_type,
+            _event_type,
+            _invoice_type,
+            _has_archive,
+        )

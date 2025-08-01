@@ -29,3 +29,30 @@ class TestGoMoClient(unittest.TestCase):
 
         subscriptions = client.get_subscriptions()
         self.assertGreater(len(subscriptions), 0)
+
+    def test_get_bills(self):
+        client = self.__client
+
+        subscriptions = client.get_subscriptions()
+        self.assertGreater(len(subscriptions), 0)
+
+        bills = client.get_bills(subscriptions[0].billing_account_id)
+        self.assertGreater(len(bills), 0)
+
+    def test_download_bill_pdf(self):
+        client = self.__client
+
+        subscriptions = client.get_subscriptions()
+        self.assertGreater(len(subscriptions), 0)
+        self.assertGreater(subscriptions[0].billing_account_id, 0)
+
+        billing_account_id = subscriptions[0].billing_account_id
+        bills = client.get_bills(billing_account_id)
+        self.assertGreater(len(bills), 0)
+
+        pdfBytes = client.download_bill_pdf(billing_account_id, bills[0].invoice_id)
+        self.assertGreater(len(pdfBytes), 5)
+
+        # See https://en.wikipedia.org/wiki/List_of_file_signatures
+        magicBytes = b"\x25\x50\x44\x46\x2d"  # "%PDF-"
+        self.assertEqual(pdfBytes[0:5], magicBytes)

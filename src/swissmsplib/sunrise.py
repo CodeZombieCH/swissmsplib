@@ -155,11 +155,14 @@ class SunriseClient:
         """
         # Check if token is not expired
         # Raises error if expired
-        _ = jwt.decode(
+        claims = jwt.decode(
             refresh_token,
             algorithms=["RS256"],
             options={"verify_signature": False, "verify_exp": "verify_signature"},
         )
+
+        if claims["type"] == "refresh_token":
+            raise Exception("invalid token type")
 
         self.session.cookies.set("selfcare", refresh_token)
 

@@ -153,6 +153,14 @@ class SunriseClient:
         """
         Login with a refresh token, which is valid for a month
         """
+        # Check if token is not expired
+        # Raises error if expired
+        _ = jwt.decode(
+            refresh_token,
+            algorithms=["RS256"],
+            options={"verify_signature": False, "verify_exp": "verify_signature"},
+        )
+
         self.session.cookies.set("selfcare", refresh_token)
 
     def get_subscriptions(self):

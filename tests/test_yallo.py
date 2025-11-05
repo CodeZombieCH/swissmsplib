@@ -12,12 +12,10 @@ from swissmsplib.sunrise import (
 
 
 class TestYalloClientLogin(unittest.TestCase):
+    @unittest.skip("login requires human interaction")
     def test_login(self):
         os.environ["PROFILE_FILE"] = "./.data/profiles.toml"
         profile = read_profile("yallo")
-
-        if not profile.refresh_token:
-            raise ValueError("Missing refresh token in profile")
 
         client: SunriseClient = create_client("yallo")  # type: ignore
 

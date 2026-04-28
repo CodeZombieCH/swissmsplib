@@ -3,7 +3,7 @@ import os
 
 from swissmsplib.factory import create_client
 from swissmsplib.profiles import read_profile
-from swissmsplib.swisscom import SwisscomClient
+from swissmsplib.swisscom_service import SwisscomServiceProviderClient
 
 
 class TestMBudgetClient(unittest.TestCase):
@@ -16,11 +16,11 @@ class TestMBudgetClient(unittest.TestCase):
         cls.__client.logout()
 
     @staticmethod
-    def __get_client() -> SwisscomClient:
+    def __get_client() -> SwisscomServiceProviderClient:
         os.environ["PROFILE_FILE"] = "./.data/profiles.toml"
         profile = read_profile("mbudget")
 
-        client: SwisscomClient = create_client("mbudget")  # type: ignore
+        client: SwisscomServiceProviderClient = create_client("mbudget")  # type: ignore
         client.login(profile.username, profile.password)
         return client
 

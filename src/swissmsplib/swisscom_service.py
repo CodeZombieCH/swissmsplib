@@ -4,7 +4,13 @@ import requests
 from swissmsplib.common import ParserException, get_default_user_agent
 
 
-class SwisscomClient:
+class SwisscomServiceProviderClient:
+    """
+    Client for service providers based on the Swisscom network provider
+    Currently tested with:
+    - Migros Mobile (formerly M-Budget Mobile)
+    """
+
     def __init__(self, service_url, get_user_agent=get_default_user_agent):
         if not service_url:
             raise ValueError("service_url cannot be empty")
@@ -61,7 +67,10 @@ class SwisscomClient:
                 ".product__item__phone-number"
             )
             if not phone_number_element:
-                raise ParserException("Failed to parse element for phone number")
+                # raise ParserException("Failed to parse element for phone number")
+                # For prepaid subscriptions, there are two product rows, where only the first one is an actual product
+                # => skip product if there is no phone number
+                continue
 
             subscriptions.append(Subscription(phone_number_element.text.strip()))
 

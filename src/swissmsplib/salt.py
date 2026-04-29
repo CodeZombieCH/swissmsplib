@@ -14,6 +14,10 @@ def time_ms():
 
 
 class SaltClient:
+    """
+    Client for the Salt network provider
+    """
+
     def __init__(
         self,
         login_url: str,
@@ -177,15 +181,21 @@ class SaltClient:
 class Subscription:
     id: int
     number: str
-    billing_account_id: int
+    # Only available if post-paid, not for pre-paid
+    billing_account_id: int | None
 
     @staticmethod
     def from_dict(obj) -> "Subscription":
-        _id = int(obj.get("id"))
-        _number = obj.get("number")
-        _billing_account_id = int(obj.get("billingAccountId"))
+        id = int(obj.get("id"))
+        number = obj.get("number")
 
-        return Subscription(_id, _number, _billing_account_id)
+        billing_account_id_raw = obj.get("billingAccountId")
+        if billing_account_id_raw:
+            billing_account_id = int(billing_account_id_raw)
+        else:
+            billing_account_id = None
+
+        return Subscription(id=id, number=number, billing_account_id=billing_account_id)
 
 
 class Counters:

@@ -25,7 +25,7 @@ def create_client(
             service_name="myaccount-gomo-ui-service",
         )
     elif provider == "mbudget":
-        return SwisscomServiceProviderClient("https://selfcare.m-budget.migros.ch")
+        return SwisscomServiceProviderClient("https://selfcare.mobile.migros.ch")
     elif provider == "coopmobile":
         return SwisscomServiceProviderClient("https://myaccount.coopmobile.ch")
     elif provider == "yallo":

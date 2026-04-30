@@ -161,7 +161,7 @@ class SunriseClient:
             options={"verify_signature": False, "verify_exp": "verify_signature"},
         )
 
-        if claims["type"] == "refresh_token":
+        if claims["type"] != "refresh_token":
             raise Exception("invalid token type")
 
         self.session.cookies.set("selfcare", refresh_token)

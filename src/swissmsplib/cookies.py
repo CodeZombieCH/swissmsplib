@@ -5,6 +5,9 @@ import requests
 
 
 def _load_cookies(session: requests.Session, name: str):
+    if not name:
+        raise ValueError("name is empty")
+
     path = f".data/{name}.cookies.txt"
     cookies = MozillaCookieJar(filename=path)
     session.cookies = cookies  # type: ignore

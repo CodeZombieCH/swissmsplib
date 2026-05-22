@@ -14,6 +14,7 @@
         "editor.defaultFormatter": "ms-python.black-formatter",
         "editor.formatOnSave": true
     },
+    "python.analysis.typeCheckingMode": "basic",
     "python.testing.unittestArgs": [
         "-v",
         "-s",
@@ -23,5 +24,6 @@
     ],
     "python.testing.pytestEnabled": false,
     "python.testing.unittestEnabled": true,
-    "python-envs.defaultEnvManager": "ms-python.python:poetry"
+    "python-envs.defaultEnvManager": "ms-python.python:poetry",
+    "python-envs.defaultPackageManager": "ms-python.python:poetry",
 }

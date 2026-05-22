@@ -3,12 +3,8 @@
 {
 	"name": "Debian",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"image": "mcr.microsoft.com/devcontainers/base:bookworm",
+	"image": "mcr.microsoft.com/devcontainers/python:3.11",
 	"features": {
-		"ghcr.io/devcontainers/features/python:1": {
-			"installTools": true,
-			"version": "3.11"
-		},
 		"ghcr.io/devcontainers-extra/features/black:2": {
 			"version": "latest"
 		},
@@ -25,9 +21,6 @@
 			]
 		}
 	}
-
-	// Features to add to the dev container. More info: https://containers.dev/features.
-	// "features": {},
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],

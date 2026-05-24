@@ -6,11 +6,16 @@ from swissmsplib.factory import create_client
 from swissmsplib.profiles import read_profile
 from swissmsplib.swisscom_service import SwisscomServiceProviderClient
 
+PROVIDER_NAME = "coopmobile"
+PROFILE_NAME = "coopmobile"
+
 
 class TestCoopMobileClient(unittest.TestCase):
+    client: SwisscomServiceProviderClient
+
     @classmethod
     def setUpClass(cls):
-        cls.client: SwisscomServiceProviderClient = create_client("coopmobile")  # type: ignore
+        cls.client = cls._create_client()
 
         # Try to login from cookies file
         if cls._login_from_cookies(cls.client):
@@ -25,15 +30,19 @@ class TestCoopMobileClient(unittest.TestCase):
         _save_cookies(cls.client.session)
 
     @staticmethod
+    def _create_client() -> SwisscomServiceProviderClient:
+        return create_client(PROVIDER_NAME)  # type: ignore
+
+    @staticmethod
     def _login(client: SwisscomServiceProviderClient):
         os.environ["PROFILE_FILE"] = "./.data/profiles.toml"
-        profile = read_profile("coopmobile")
+        profile = read_profile(PROFILE_NAME)
 
         client.login(profile.username, profile.password)
 
     @staticmethod
     def _login_from_cookies(client: SwisscomServiceProviderClient) -> bool:
-        if not _load_cookies(client.session, "coopmobile"):
+        if not _load_cookies(client.session, PROFILE_NAME):
             return False
 
         try:
@@ -43,7 +52,7 @@ class TestCoopMobileClient(unittest.TestCase):
 
     @unittest.skip("Manual test")
     def test_login(self):
-        client: SwisscomServiceProviderClient = create_client("coopmobile")  # type: ignore
+        client = self._create_client()
         self._login(client)
 
         self.assertTrue(client.is_logged_in())
@@ -57,7 +66,5 @@ class TestCoopMobileClient(unittest.TestCase):
         self.assertGreater(account_number, 0)
 
     def test_get_subscriptions(self):
-        client = self.client
-
-        subscriptions = client.get_subscriptions()
+        subscriptions = self.client.get_subscriptions()
         self.assertGreater(len(subscriptions), 0)

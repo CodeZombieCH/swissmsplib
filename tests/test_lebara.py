@@ -10,14 +10,17 @@ from swissmsplib.sunrise import (
     create_legacy_sunrise_client,
 )
 
+PROVIDER_NAME = "lebara"
+PROFILE_NAME = "lebara"
+
 
 class TestLebaraClientLogin(unittest.TestCase):
     @unittest.skip("login requires human interaction")
     def test_login(self):
         os.environ["PROFILE_FILE"] = "./.data/profiles.toml"
-        profile = read_profile("lebara")
+        profile = read_profile(PROFILE_NAME)
 
-        client: SunriseClient = create_client("lebara")  # type: ignore
+        client: SunriseClient = create_client(PROVIDER_NAME)  # type: ignore
 
         context = client.login_send_username(profile.username)
         if context.next_step == NextStep.PASSWORD:
@@ -45,12 +48,12 @@ class TestLebaraClient(unittest.TestCase):
     @staticmethod
     def __get_client():
         os.environ["PROFILE_FILE"] = "./.data/profiles.toml"
-        profile = read_profile("lebara")
+        profile = read_profile(PROFILE_NAME)
 
         if not profile.refresh_token:
             raise ValueError("Missing refresh token in profile")
 
-        client: SunriseClient = create_client("lebara")  # type: ignore
+        client: SunriseClient = create_client(PROVIDER_NAME)  # type: ignore
         client.login_with_refresh_token(profile.refresh_token)
         return client
 
@@ -85,15 +88,15 @@ class TestLegacyLebaraClient(unittest.TestCase):
     @staticmethod
     def __get_client():
         os.environ["PROFILE_FILE"] = "./.data/profiles.toml"
-        profile = read_profile("lebara")
+        profile = read_profile(PROFILE_NAME)
 
         if not profile.refresh_token:
             raise ValueError("Missing refresh token in profile")
 
-        client: SunriseClient = create_client("lebara")  # type: ignore
+        client: SunriseClient = create_client(PROVIDER_NAME)  # type: ignore
         client.login_with_refresh_token(profile.refresh_token)
 
-        return create_legacy_sunrise_client(client, "lebara")
+        return create_legacy_sunrise_client(client, PROVIDER_NAME)
 
     def test_get_account_details(self):
         client = self.__client

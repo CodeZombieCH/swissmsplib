@@ -5,6 +5,9 @@ from swissmsplib.factory import create_client
 from swissmsplib.profiles import read_profile
 from swissmsplib.salt import SaltClient
 
+PROVIDER_NAME = "gomo"
+PROFILE_NAME = "gomo"
+
 
 class TestGoMoClient(unittest.TestCase):
     @classmethod
@@ -18,9 +21,9 @@ class TestGoMoClient(unittest.TestCase):
     @staticmethod
     def __get_client() -> SaltClient:
         os.environ["PROFILE_FILE"] = "./.data/profiles.toml"
-        profile = read_profile("gomo")
+        profile = read_profile(PROFILE_NAME)
 
-        client: SaltClient = create_client("gomo")  # type: ignore
+        client: SaltClient = create_client(PROVIDER_NAME)  # type: ignore
         client.login(profile.username, profile.password)
         return client
 
@@ -36,7 +39,11 @@ class TestGoMoClient(unittest.TestCase):
         subscriptions = client.get_subscriptions()
         self.assertGreater(len(subscriptions), 0)
 
-        bills = client.get_bills(subscriptions[0].billing_account_id)
+        billing_account_id = subscriptions[0].billing_account_id
+        self.assertIsNotNone(billing_account_id)
+        assert billing_account_id
+
+        bills = client.get_bills(billing_account_id)
         self.assertGreater(len(bills), 0)
 
     def test_download_bill_pdf(self):
@@ -44,9 +51,11 @@ class TestGoMoClient(unittest.TestCase):
 
         subscriptions = client.get_subscriptions()
         self.assertGreater(len(subscriptions), 0)
-        self.assertGreater(subscriptions[0].billing_account_id, 0)
 
         billing_account_id = subscriptions[0].billing_account_id
+        self.assertIsNotNone(billing_account_id)
+        assert billing_account_id
+
         bills = client.get_bills(billing_account_id)
         self.assertGreater(len(bills), 0)
 

@@ -8,14 +8,19 @@ The **Swiss** **M**obile **S**ervice **P**rovider **Lib**rary (swissmsplib) is a
 ### Versions
 
 Build and tested using dev container (see [devcontainer.json](.devcontainer/devcontainer.json))
-- Debian 12
-- Python 3.11
-- Poetry 2.1
 
 ### Poetry
 
 This project uses poetry for package and venv management.
 
-### Black
+```bash
+make install
+```
 
-This project uses black for source code formatting.
+### Formatting
+
+This project uses [black](https://github.com/psf/black) and [isort](https://github.com/PyCQA/isort) for source code formatting.
+
+```bash
+make format
+```

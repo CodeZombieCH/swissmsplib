@@ -1,5 +1,5 @@
-import unittest
 import os
+import unittest
 
 from swissmsplib.factory import create_client
 from swissmsplib.profiles import read_profile

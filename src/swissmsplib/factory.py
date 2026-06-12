@@ -1,7 +1,7 @@
 from swissmsplib.salt import SaltClient
 from swissmsplib.sunrise import SunriseClient
-from swissmsplib.swisscom_service import SwisscomServiceProviderClient
 from swissmsplib.swisscom_network import SwisscomNetworkProviderClient
+from swissmsplib.swisscom_service import SwisscomServiceProviderClient
 
 
 def create_client(

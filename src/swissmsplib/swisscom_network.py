@@ -1,8 +1,9 @@
+import os
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 from http.cookiejar import MozillaCookieJar
-import os
+
 import requests
 
 from swissmsplib.common import ParserException, get_default_user_agent

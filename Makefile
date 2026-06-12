@@ -8,4 +8,5 @@ update:
 	poetry update
 
 format:
-	poetry run black .
+	poetry run isort .
+	poetry run black --target-version py314 .

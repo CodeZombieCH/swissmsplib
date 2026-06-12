@@ -1,5 +1,5 @@
-import unittest
 import os
+import unittest
 
 from swissmsplib.cookies import _load_cookies, _save_cookies
 from swissmsplib.factory import create_client

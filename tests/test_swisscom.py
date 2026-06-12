@@ -1,6 +1,6 @@
-from datetime import datetime
-import unittest
 import os
+import unittest
+from datetime import datetime
 
 from swissmsplib.factory import create_client
 from swissmsplib.profiles import read_profile

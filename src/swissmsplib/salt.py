@@ -1,10 +1,11 @@
-from bs4 import BeautifulSoup
 import datetime
-import requests
-import time
 import json
-import dateutil.relativedelta
+import time
 from dataclasses import dataclass
+
+import dateutil.relativedelta
+import requests
+from bs4 import BeautifulSoup
 
 from swissmsplib.common import ParserException, get_default_user_agent
 

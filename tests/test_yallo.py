@@ -1,14 +1,10 @@
-import unittest
-import os
 import logging
+import os
+import unittest
 
 from swissmsplib.factory import create_client
 from swissmsplib.profiles import read_profile
-from swissmsplib.sunrise import (
-    NextStep,
-    SunriseClient,
-    create_legacy_sunrise_client,
-)
+from swissmsplib.sunrise import NextStep, SunriseClient, create_legacy_sunrise_client
 
 PROVIDER_NAME = "yallo"
 PROFILE_NAME = "yallo"

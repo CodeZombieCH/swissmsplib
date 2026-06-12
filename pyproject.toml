@@ -18,6 +18,7 @@ packages = [{include = "swissmsplib", from = "src"}]
 
 [tool.poetry.group.dev.dependencies]
 black = "^25.1.0"
+isort = "^8.0.1"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

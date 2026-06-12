@@ -33,6 +33,27 @@ class TestGoMoClient(unittest.TestCase):
         subscriptions = client.get_subscriptions()
         self.assertGreater(len(subscriptions), 0)
 
+    def test_get_consumption(self):
+        client = self.__client
+
+        subscriptions = client.get_subscriptions()
+        self.assertGreater(len(subscriptions), 0)
+
+        consumption = client.get_consumption(subscriptions[0].id)
+        self.assertGreaterEqual(len(consumption.data.plans), 1)
+        self.assertIsNotNone(consumption.data.plans[0].name)
+        self.assertIsNotNone(consumption.data.plans[0].status)
+        self.assertIsNotNone(consumption.data.plans[0].code)
+
+        self.assertGreaterEqual(
+            consumption.data.plans[0].volume.total, -1
+        )  # -1 => unlimited
+        self.assertGreaterEqual(consumption.data.plans[0].volume.used, 0)
+        self.assertGreaterEqual(consumption.data.plans[0].volume.remaining, 0)
+        self.assertGreaterEqual(consumption.data.plans[0].volume.throttled, 0)
+        self.assertGreaterEqual(consumption.data.plans[0].volume.used_percent, 0)
+        self.assertGreaterEqual(consumption.data.plans[0].volume.remaining_percent, 0)
+
     def test_get_bills(self):
         client = self.__client
 

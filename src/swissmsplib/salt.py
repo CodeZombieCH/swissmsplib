@@ -150,6 +150,17 @@ class SaltClient:
 
         return parsed_counters
 
+    def get_consumption(self, subscription_id: int):
+        # https://my.go-mo.ch/myaccount-gomo-ui-service/protected/v1/subscription/11299531/consumption/details?_=1781274029626
+        response = self.session.get(
+            f"{self.service_url}/{self.service_name}/protected/v1/subscription/{subscription_id}/consumption/details?_={time_ms()}"
+        )
+        response.raise_for_status()
+
+        data = response.json()
+
+        return ConsumptionDetails.from_dict(data)
+
     def get_bills(self, billing_account_id: int):
         # https://my.go-mo.ch/myaccount-gomo-ui-service/protected/v1/billing/<subscription_id>/accountSummary?_=<timestamp>
         response = self.session.get(
@@ -215,6 +226,79 @@ class Counters:
         self.volumeUsed = volumeUsed
         self.validUntil = validUntil
         self.period_percent_used = period_percent_used
+
+
+@dataclass
+class ConsumptionDetailsDataPlanVolume:
+    total: int
+    used: int
+    remaining: int
+    throttled: int
+    used_percent: int
+    remaining_percent: int
+
+    @staticmethod
+    def from_dict(obj):
+        _total = int(obj.get("total"))
+        _used = int(obj.get("used"))
+        _remaining = int(obj.get("remaining"))
+        _throttled = int(obj.get("throttled"))
+        _used_percent = int(obj.get("usedPercent"))
+        _remaining_percent = int(obj.get("remainingPercent"))
+
+        return ConsumptionDetailsDataPlanVolume(
+            total=_total,
+            used=_used,
+            remaining=_remaining,
+            throttled=_throttled,
+            used_percent=_used_percent,
+            remaining_percent=_remaining_percent,
+        )
+
+
+@dataclass
+class ConsumptionDetailsDataPlan:
+    code: str
+    status: str
+    name: str
+    volume: ConsumptionDetailsDataPlanVolume
+
+    @staticmethod
+    def from_dict(obj):
+        _code = str(obj.get("code"))
+        _status = str(obj.get("status"))
+        _name = str(obj.get("name"))
+
+        _volume = ConsumptionDetailsDataPlanVolume.from_dict(obj.get("volume"))
+
+        return ConsumptionDetailsDataPlan(
+            code=_code, status=_status, name=_name, volume=_volume
+        )
+
+
+@dataclass
+class ConsumptionDetailsData:
+    plans: list[ConsumptionDetailsDataPlan]
+
+    @staticmethod
+    def from_dict(obj):
+        plans = []
+        if obj.get("plans"):
+            for p in obj.get("plans"):
+                plans.append(ConsumptionDetailsDataPlan.from_dict(p))
+
+        return ConsumptionDetailsData(plans=plans)
+
+
+@dataclass
+class ConsumptionDetails:
+    data: ConsumptionDetailsData
+
+    @staticmethod
+    def from_dict(obj):
+        _data = ConsumptionDetailsData.from_dict(obj.get("data"))
+
+        return ConsumptionDetails(data=_data)
 
 
 @dataclass

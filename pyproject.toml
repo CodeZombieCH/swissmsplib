@@ -17,7 +17,7 @@ dependencies = [
 packages = [{include = "swissmsplib", from = "src"}]
 
 [tool.poetry.group.dev.dependencies]
-black = "^25.1.0"
+black = "^26.0.0"
 isort = "^8.0.1"
 
 [build-system]

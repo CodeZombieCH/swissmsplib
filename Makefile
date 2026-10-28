@@ -9,4 +9,4 @@ update:
 
 format:
 	poetry run isort --profile black .
-	poetry run black --target-version py314 .
+	poetry run black --target-version py311 .
